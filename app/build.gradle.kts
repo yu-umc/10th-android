@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.umc_10th_1_week"
+    namespace = "com.example.umc_task"
     compileSdk {
         version = release(36) {
             minorApiLevel = 1
@@ -11,7 +11,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.umc_10th_1_week"
+        applicationId = "com.example.umc_task"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -32,6 +32,9 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+    viewBinding{
+        enable = true
     }
 }
 
