@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <string name="app_name">UMC_10th_1_week</string>
+    <style name="Base.Theme.UMC_10th_1_week" parent="Theme.Material3.DayNight.NoActionBar">
+        
+        
+    </style>
+    <style name="Theme.UMC_10th_1_week" parent="Base.Theme.UMC_10th_1_week"/>
+</resources>
