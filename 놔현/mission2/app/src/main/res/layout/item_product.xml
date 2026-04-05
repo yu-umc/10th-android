@@ -14,9 +14,19 @@
         android:layout_height="130dp"
         android:scaleType="centerCrop"
         android:src="@drawable/home_bg"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <ImageView
+        android:id="@+id/item_product_heart_iv"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@android:drawable/btn_star_big_off"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="4dp"
+        app:layout_constraintTop_toTopOf="@id/item_product_iv"
+        app:layout_constraintEnd_toEndOf="@id/item_product_iv"/>
 
     <TextView
         android:id="@+id/item_product_name_tv"

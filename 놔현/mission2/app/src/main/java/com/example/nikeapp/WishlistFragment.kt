@@ -5,13 +5,17 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.nikeapp.databinding.FragmentWishlistBinding
+import kotlinx.coroutines.launch
 
 class WishlistFragment : Fragment() {
 
     private var _binding: FragmentWishlistBinding? = null
     private val binding get() = _binding!!
+    private lateinit var dataStore: ProductDataStore
+    private lateinit var adapter: ProductAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -24,16 +28,30 @@ class WishlistFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val wishlist = mutableListOf(
-            ProductData("Air Jordan 1 Mid", "₩125,000", R.drawable.home_bg),
-            ProductData("Nike Everyday Plus", "₩10,000", R.drawable.home_bg),
-            ProductData("Nike Elite Crew", "₩16,000", R.drawable.home_bg),
-            ProductData("Nike Air Force 1", "₩115,000", R.drawable.home_bg)
-        )
+        dataStore = ProductDataStore(requireContext())
 
-        val adapter = ProductAdapter(wishlist)
+        adapter = ProductAdapter(mutableListOf(), onHeartClick = { product ->
+            lifecycleScope.launch {
+                dataStore.toggleWishlist(product)
+            }
+        })
+
         binding.wishlistRv.adapter = adapter
         binding.wishlistRv.layoutManager = GridLayoutManager(requireContext(), 2)
+
+        // 위시리스트 실시간 관찰
+        lifecycleScope.launch {
+            dataStore.getProducts(ProductDataStore.WISHLIST_PRODUCTS_KEY).collect { wishlist ->
+                val newList = wishlist.toMutableList()
+                adapter = ProductAdapter(newList, onHeartClick = { product ->
+                    lifecycleScope.launch {
+                        dataStore.toggleWishlist(product)
+                    }
+                })
+                adapter.updateWishlist(wishlist.map { it.name }.toSet())
+                binding.wishlistRv.adapter = adapter
+            }
+        }
     }
 
     override fun onDestroyView() {
