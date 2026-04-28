@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.wk3"
+    namespace = "com.example.wkwk"
     compileSdk {
         version = release(36) {
             minorApiLevel = 1
@@ -11,7 +11,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.wk3"
+        applicationId = "com.example.wkwk"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -33,8 +33,8 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    viewBinding{
-        enable = true
+    buildFeatures {
+        viewBinding = true
     }
 }
 
@@ -47,16 +47,5 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation(libs.androidx.navigation.fragment.ktx)
-    implementation(libs.androidx.navigation.ui.ktx)
-    implementation(libs.androidx.datastore.preferences)
-    implementation(libs.google.gson)
-    implementation(libs.androidx.core.ktx)
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
-    implementation("com.github.bumptech.glide:glide:4.12.0")
+    implementation(libs.androidx.recyclerview)
 }
