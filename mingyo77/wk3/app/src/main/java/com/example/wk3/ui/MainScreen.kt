@@ -34,7 +34,7 @@ fun MainScreen() {
         homeViewModel.loadProducts()
     }
 
-    fun navigateToTopLevel(route: Any) {
+    fun <T : Any> navigateToTopLevel(route: T) {
         navController.navigate(route) {
             popUpTo(navController.graph.startDestinationId) {
                 saveState = true

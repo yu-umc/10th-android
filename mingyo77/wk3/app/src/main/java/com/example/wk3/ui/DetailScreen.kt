@@ -43,32 +43,31 @@ fun ProductDetailScreen(
 
         if (product == null) {
             Text(text = "상품 정보를 찾을 수 없습니다.")
-            return
+        } else {
+            Image(
+                painter = painterResource(id = product.image),
+                contentDescription = product.name,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(260.dp)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = product.name,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = product.price,
+                fontSize = 18.sp,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+            Text(
+                text = if (product.explain.isBlank()) "상품 설명이 없습니다." else product.explain,
+                modifier = Modifier.padding(top = 12.dp)
+            )
         }
-
-        Image(
-            painter = painterResource(id = product.image),
-            contentDescription = product.name,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(260.dp)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = product.name,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = product.price,
-            fontSize = 18.sp,
-            modifier = Modifier.padding(top = 8.dp)
-        )
-        Text(
-            text = if (product.explain.isBlank()) "상품 설명이 없습니다." else product.explain,
-            modifier = Modifier.padding(top = 12.dp)
-        )
     }
 }
