@@ -6,3 +6,4 @@ import kotlinx.serialization.Serializable
 @Serializable data object Wish
 @Serializable data object Cart
 @Serializable data object Profile
+@Serializable data class Detail(val productName: String)
