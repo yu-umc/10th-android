@@ -48,7 +48,7 @@ fun HomeScreen(
             modifier = Modifier.padding(start = 32.dp, top = 36.dp),
         )
         Text(
-            text = "Find your next favorite Nike item",
+            text = "9월 4일 목요일",
             color = Color.Gray,
             fontSize = 15.sp,
             modifier = Modifier.padding(start = 32.dp, top = 8.dp, bottom = 20.dp),
