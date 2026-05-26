@@ -23,6 +23,7 @@ import com.example.week8.ui.screen.ProfileScreen
 import com.example.week8.ui.screen.ShopScreen
 import com.example.week8.ui.screen.WishlistScreen
 import com.example.week8.viewmodel.ProductViewModel
+import com.example.week8.viewmodel.ProfileViewModel
 
 // [MainActivity] + BottomNavigationView + FragmentContainer 를 Compose로 대체함.
 
@@ -30,6 +31,7 @@ import com.example.week8.viewmodel.ProductViewModel
 fun NikeApp(
     // Activity 레벨에서 ViewModel 하나를 공유 → 탭 이동해도 위시 상태 유지
     viewModel: ProductViewModel = viewModel(),
+    profileViewModel: ProfileViewModel = viewModel(),
 ) {
     // NavController: 현재 어떤 화면(route)인지 관리. wk5 FragmentManager 역할
     val navController = rememberNavController()
@@ -97,7 +99,7 @@ fun NikeApp(
                 )
             }
             composable(BottomNavItem.Profile.route) {
-                ProfileScreen()
+                ProfileScreen(viewModel = profileViewModel)
             }
         }
     }
