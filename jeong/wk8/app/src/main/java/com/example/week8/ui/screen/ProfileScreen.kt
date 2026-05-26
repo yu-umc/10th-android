@@ -3,7 +3,6 @@ package com.example.week8.ui.screen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,41 +14,52 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.example.week8.R
 import com.example.week8.ui.components.FollowingItem
-
-private data class FollowingUi(val id: Int)
+import com.example.week8.viewmodel.ProfileViewModel
 
 /**
- * wk5 [fragment_user.xml] UI 마이그레이션.
- *
- * ScrollView fillViewport + layout_weight=1 스페이서 → LazyColumn fillParentMaxHeight()
- * 회원 가입일 텍스트는 54dp 회색 바 위에 겹쳐 표시 (marginTop=-38dp 대응)
+ * wk5 [fragment_user.xml] + [UserFragment] UI/API 마이그레이션.
+ * ReqRes userId=1, 팔로잉은 HorizontalPager.
  */
 @Composable
-fun ProfileScreen(modifier: Modifier = Modifier) {
-    val nickname = "홍길동"
-    val benefitCount = "0개 사용 가능"
-    val following = remember {
-        listOf(FollowingUi(1), FollowingUi(2), FollowingUi(3))
+fun ProfileScreen(
+    modifier: Modifier = Modifier,
+    viewModel: ProfileViewModel = viewModel(),
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadUserPage()
     }
+
+    val nickname = uiState.profile?.displayName ?: "홍길동"
+    val avatarUrl = uiState.profile?.avatar
+    val benefitCount = uiState.benefitCountText
+    val following = uiState.following
+    val pagerState = rememberPagerState(pageCount = { following.size.coerceAtLeast(1) })
 
     LazyColumn(
         modifier = modifier
@@ -63,13 +73,7 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
                     .padding(top = 30.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                // wk5: ShapeableImageView + bg_profile_circle (gray_300)
-                Box(
-                    modifier = Modifier
-                        .size(96.dp)
-                        .clip(CircleShape)
-                        .background(colorResource(R.color.gray_300)),
-                )
+                ProfileAvatar(avatarUrl = avatarUrl)
                 Text(
                     text = nickname,
                     color = colorResource(R.color.black),
@@ -77,7 +81,6 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(top = 14.dp),
                 )
-                // wk5: MaterialButton, backgroundTint=white, stroke 1dp
                 Surface(
                     onClick = { },
                     modifier = Modifier
@@ -109,7 +112,6 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
             ProfileMenuRow()
         }
 
-        // wk5: 10dp gray bar, layout_marginTop="8dp"
         item {
             Spacer(
                 modifier = Modifier
@@ -175,7 +177,6 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f),
                 )
-                // wk5: TextView "편집" (TextButton 기본 패딩 제거)
                 Text(
                     text = "편집",
                     color = colorResource(R.color.gray_700),
@@ -186,25 +187,59 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
         }
 
         item {
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(88.dp)
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                items(items = following, key = { it.id }) {
-                    FollowingItem()
+            if (following.isNotEmpty()) {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(88.dp)
+                        .padding(horizontal = 16.dp),
+                    pageSpacing = 8.dp,
+                ) { page ->
+                    FollowingItem(avatarUrl = following[page].avatar)
                 }
+            } else if (!uiState.isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(88.dp)
+                        .padding(horizontal = 16.dp),
+                )
             }
         }
 
-        // wk5: View height=0dp layout_weight=1 → 남은 공간 채워 푸터를 화면 하단으로 밀기
+        if (uiState.isLoading) {
+            item {
+                Text(
+                    text = "불러오는 중...",
+                    color = colorResource(R.color.gray_500),
+                    fontSize = 14.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 18.dp),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                )
+            }
+        }
+
+        if (!uiState.errorMessage.isNullOrBlank()) {
+            item {
+                Text(
+                    text = uiState.errorMessage.orEmpty(),
+                    color = colorResource(R.color.gray_700),
+                    fontSize = 14.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 10.dp),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                )
+            }
+        }
+
         item {
             Spacer(modifier = Modifier.fillParentMaxHeight())
         }
 
-        // wk5: 54dp gray_100 바 + 회원가입일 (marginTop=-38dp 로 바 위에 겹침)
         item {
             Box(
                 modifier = Modifier
@@ -223,9 +258,25 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
     }
 }
 
-/**
- * wk5: 72dp Row, gravity=center, 메뉴 4개 weight=1 + 사이 1dp 구분선(높이 20dp)
- */
+@Composable
+private fun ProfileAvatar(avatarUrl: String?) {
+    Box(
+        modifier = Modifier
+            .size(96.dp)
+            .clip(CircleShape)
+            .background(colorResource(R.color.gray_300)),
+    ) {
+        if (!avatarUrl.isNullOrBlank()) {
+            AsyncImage(
+                model = avatarUrl,
+                contentDescription = "프로필 이미지",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
+    }
+}
+
 @Composable
 private fun ProfileMenuRow() {
     val menus = listOf(
