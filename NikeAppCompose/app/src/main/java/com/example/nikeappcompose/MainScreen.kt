@@ -6,8 +6,7 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -15,11 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.nikeappcompose.screen.CartScreen
-import com.example.nikeappcompose.screen.HomeScreen
-import com.example.nikeappcompose.screen.ProfileScreen
-import com.example.nikeappcompose.screen.ShopScreen
-import com.example.nikeappcompose.screen.WishlistScreen
+import com.example.nikeappcompose.screen.*
 
 data class BottomNavItem(
     val label: String,
@@ -32,6 +27,8 @@ fun MainScreen() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
+
+    val wishlist = remember { mutableStateListOf<Product>() }
 
     val bottomNavItems = listOf(
         BottomNavItem("홈", AppDestination.Home, R.drawable.ic_home),
@@ -70,8 +67,21 @@ fun MainScreen() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable<AppDestination.Home> { HomeScreen() }
-            composable<AppDestination.Shop> { ShopScreen() }
-            composable<AppDestination.Wishlist> { WishlistScreen() }
+            composable<AppDestination.Shop> {
+                ShopScreen(
+                    wishlist = wishlist,
+                    onToggleWishlist = { product ->
+                        if (wishlist.contains(product)) {
+                            wishlist.remove(product)
+                        } else {
+                            wishlist.add(product)
+                        }
+                    }
+                )
+            }
+            composable<AppDestination.Wishlist> {
+                WishlistScreen(wishlist = wishlist)
+            }
             composable<AppDestination.Cart> {
                 CartScreen(
                     onNavigateToShop = {
